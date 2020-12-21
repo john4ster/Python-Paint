@@ -5,7 +5,6 @@ import tools
 #Setup the pygame window
 pygame.init()
 
-#Window width needs to be 200 more than window_height for the drawing area and tool surface to line up correctly
 window_width = 1000
 window_height = 800
 
@@ -56,13 +55,16 @@ class GridSquare:
   def update_neighbors(self, grid, brush_size):
     self.neighbors = []
     #If statements like these are so it doesn't draw on the other side of the grid when the user draws on the edge
-    if self.row < len(grid):
+    if self.row < len(grid) and grid[self.row + (brush_size - 1)][self.col].color == WHITE:
       self.neighbors.append(grid[self.row + (brush_size - 1)][self.col])
-    if self.row > 0:
+
+    if self.row > 0 and grid[self.row - (brush_size - 1)][self.col].color == WHITE:
       self.neighbors.append(grid[self.row - (brush_size - 1)][self.col])
-    if self.col > 0:
+
+    if self.col > 0 and grid[self.row][self.col - (brush_size - 1)].color == WHITE:
       self.neighbors.append(grid[self.row][self.col - (brush_size - 1)])
-    if self.col < len(grid):
+
+    if self.col < len(grid) and grid[self.row][self.col + (brush_size - 1)].color == WHITE:
       self.neighbors.append(grid[self.row][self.col + (brush_size - 1)])
 
     #Fill in the gaps for larger brush sizes
@@ -179,7 +181,6 @@ def main():
     brush_button = image_button('images/brush.png',(window_width - 80, 50), screen)
     eraser_button = image_button('images/eraser.png', (window_width - 80, 110), screen)
     eye_dropper_button = image_button('images/eyeDropper.png', (window_width - 80, 160), screen)
-    fill_button = image_button('images/fill.png', (window_width - 80, 220), screen)
     for event in pygame.event.get():
       if event.type == pygame.QUIT:
         pygame.quit()
@@ -194,7 +195,11 @@ def main():
           try:
             row, col = get_clicked_pos(pos, rows, grid_width)
             square = grid[row][col]
-            current_tool.use(square, grid) #Use the use method of the current tool
+            if type(current_tool) is tools.PaintBrush or type(current_tool) is tools.Eraser: #Brush or eraser
+              current_tool.use(square, grid) #Use the use method of the brush or eraser
+            elif type(current_tool) is tools.EyeDropper: #Eyedropper
+              current_color = current_tool.use(square) #Use the use method of the eyedropper
+
           except Exception:
             pass
         else: #If they click in the tools menu
@@ -204,9 +209,7 @@ def main():
           if eraser_button[1].collidepoint(pos): #Eraser
             current_tool = tools.Eraser(brush_size)
           if eye_dropper_button[1].collidepoint(pos): #Eye Dropper
-            current_tool = tools.EyeDropper()
-          if fill_button[1].collidepoint(pos): #Fill Tool
-            current_tool = tools.Fill()
+            current_tool = tools.EyeDropper(brush_size)
           #Brush Size Buttons
           if size_1_rect.collidepoint(pos):
             brush_size = 1
@@ -223,25 +226,46 @@ def main():
 
           #Change the brush color upon clicking the color buttons
           if yellow_button.collidepoint(pos):
-            current_tool.change_brush_color(YELLOW)
+            current_color = YELLOW
+            if type(current_tool) is tools.PaintBrush: #If statements like these are to check if the current tool is a paint brush to avoid errors
+              current_tool.change_brush_color(YELLOW)
+
           if orange_button.collidepoint(pos):
-            current_tool.change_brush_color(ORANGE)
+            current_color = ORANGE
+            if type(current_tool) is tools.PaintBrush:
+              current_tool.change_brush_color(ORANGE)
           if red_button.collidepoint(pos):
-            current_tool.change_brush_color(RED)
+            current_color = RED
+            if type(current_tool) is tools.PaintBrush:
+              current_tool.change_brush_color(RED)
           if magenta_button.collidepoint(pos):
-            current_tool.change_brush_color(MAGENTA)
+            current_color = MAGENTA
+            if type(current_tool) is tools.PaintBrush:
+              current_tool.change_brush_color(MAGENTA)
           if purple_button.collidepoint(pos):
-            current_tool.change_brush_color(PURPLE)
+            current_color = PURPLE
+            if type(current_tool) is tools.PaintBrush:
+              current_tool.change_brush_color(PURPLE)
           if lime_button.collidepoint(pos):
-            current_tool.change_brush_color(LIME)
+            current_color = LIME
+            if type(current_tool) is tools.PaintBrush:
+              current_tool.change_brush_color(LIME)
           if green_button.collidepoint(pos):
-            current_tool.change_brush_color(GREEN)
+            current_color = GREEN
+            if type(current_tool) is tools.PaintBrush:
+              current_tool.change_brush_color(GREEN)
           if black_button.collidepoint(pos):
-            current_tool.change_brush_color(BLACK)
+            current_color = BLACK
+            if type(current_tool) is tools.PaintBrush:
+              current_tool.change_brush_color(BLACK)
           if cyan_button.collidepoint(pos):
-            current_tool.change_brush_color(CYAN)
+            current_color = CYAN
+            if type(current_tool) is tools.PaintBrush:
+              current_tool.change_brush_color(CYAN)
           if blue_button.collidepoint(pos):
-            current_tool.change_brush_color(BLUE)
+            current_color = BLUE
+            if type(current_tool) is tools.PaintBrush:
+              current_tool.change_brush_color(BLUE)
           
 
 
@@ -253,35 +277,38 @@ def main():
     screen.blit(brush_button[0], brush_button[1])
     screen.blit(eraser_button[0], eraser_button[1])
     screen.blit(eye_dropper_button[0], eye_dropper_button[1])
-    screen.blit(fill_button[0], fill_button[1])
 
     #Display the brush size buttons
-    size_1_rect = pygame.draw.rect(screen,DARK_GRAY,(window_width - 180,330,30,30))
-    size_2_rect = pygame.draw.rect(screen,DARK_GRAY,(window_width - 140,330,30,30))
-    size_3_rect = pygame.draw.rect(screen,DARK_GRAY,(window_width - 100,330,30,30))
-    size_4_rect = pygame.draw.rect(screen,DARK_GRAY,(window_width - 60,330,30,30))
+    size_1_rect = pygame.draw.rect(screen,DARK_GRAY,(window_width - 180,270,30,30))
+    size_2_rect = pygame.draw.rect(screen,DARK_GRAY,(window_width - 140,270,30,30))
+    size_3_rect = pygame.draw.rect(screen,DARK_GRAY,(window_width - 100,270,30,30))
+    size_4_rect = pygame.draw.rect(screen,DARK_GRAY,(window_width - 60,270,30,30))
     #Display the text on the buttons
-    display_text("1", BLACK, (window_width - 165,335))
-    display_text("2", BLACK, (window_width - 125,335))
-    display_text("3", BLACK, (window_width - 85,336))
-    display_text("4", BLACK, (window_width - 45,335))
+    display_text("1", BLACK, (window_width - 165,275))
+    display_text("2", BLACK, (window_width - 125,275))
+    display_text("3", BLACK, (window_width - 85,276))
+    display_text("4", BLACK, (window_width - 45,275))
 
     #Display the color buttons
-    yellow_button = pygame.draw.rect(screen, YELLOW, (window_width - 175, 430, 30, 30))
-    orange_button = pygame.draw.rect(screen, ORANGE, (window_width - 145, 430, 30, 30))
-    red_button = pygame.draw.rect(screen, RED, (window_width - 115, 430, 30, 30))
-    magenta_button = pygame.draw.rect(screen, MAGENTA, (window_width - 85, 430, 30, 30))
-    purple_button = pygame.draw.rect(screen, PURPLE, (window_width - 55, 430, 30, 30))
-    lime_button = pygame.draw.rect(screen, LIME, (window_width - 175, 460, 30, 30))
-    green_button = pygame.draw.rect(screen, GREEN, (window_width - 145, 460, 30, 30))
-    black_button = pygame.draw.rect(screen, BLACK, (window_width - 115, 460, 30, 30))
-    cyan_button = pygame.draw.rect(screen, CYAN, (window_width - 85, 460, 30, 30))
-    blue_button = pygame.draw.rect(screen, BLUE, (window_width - 55, 460, 30, 30))
+    yellow_button = pygame.draw.rect(screen, YELLOW, (window_width - 175, 370, 30, 30))
+    orange_button = pygame.draw.rect(screen, ORANGE, (window_width - 145, 370, 30, 30))
+    red_button = pygame.draw.rect(screen, RED, (window_width - 115, 370, 30, 30))
+    magenta_button = pygame.draw.rect(screen, MAGENTA, (window_width - 85, 370, 30, 30))
+    purple_button = pygame.draw.rect(screen, PURPLE, (window_width - 55, 370, 30, 30))
+    lime_button = pygame.draw.rect(screen, LIME, (window_width - 175, 400, 30, 30))
+    green_button = pygame.draw.rect(screen, GREEN, (window_width - 145, 400, 30, 30))
+    black_button = pygame.draw.rect(screen, BLACK, (window_width - 115, 400, 30, 30))
+    cyan_button = pygame.draw.rect(screen, CYAN, (window_width - 85, 400, 30, 30))
+    blue_button = pygame.draw.rect(screen, BLUE, (window_width - 55, 400, 30, 30))
+
+    #Display the current color
+    current_color_rect = pygame.draw.rect(screen, current_color, (window_width - 130, 525, 50, 50))
 
     #Displays the tool menu titles
     display_text("Tools", BLACK, (window_width - 140, 5))
-    display_text("Brush Size", BLACK, (window_width - 180, 290))
-    display_text("Colors", BLACK, (window_width - 150, 400))
+    display_text("Brush Size", BLACK, (window_width - 180, 230))
+    display_text("Colors", BLACK, (window_width - 150, 340))
+    display_text("Current Color", BLACK, (window_width - 195, 490))
 
     pygame.display.flip()
 
