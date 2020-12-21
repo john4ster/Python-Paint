@@ -113,14 +113,6 @@ def create_grid(grid_width, total_rows):
 
   return grid
 
-#Draw the grid lines to the screen
-def draw_grid_lines(window, rows, grid_width):
-  gap = grid_width // rows
-  for r in range(rows):
-    pygame.draw.line(window, GRAY, (0, r * gap), (grid_width, r * gap))
-    for c in range(rows):
-      pygame.draw.line(window, GRAY, (c * gap, 0), (c * gap, grid_width))
-
 #Draw the grid squares
 def draw_squares(window, grid, total_rows, grid_width):
   window.fill(WHITE)
@@ -128,8 +120,6 @@ def draw_squares(window, grid, total_rows, grid_width):
   for row in grid:
     for GridSquare in row:
       GridSquare.draw(window)
-
-  draw_grid_lines(window, total_rows, grid_width)
 
 #Function to get the clicked position so we can draw on that square in the grid
 def get_clicked_pos(pos, rows, grid_width):
