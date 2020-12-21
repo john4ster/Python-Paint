@@ -36,8 +36,7 @@ class Eraser(Tool):
     for eachSquare in neighbors:
       eachSquare.change_color(WHITE)
 
-#Class eyedropper inherits Tool (Not implemented yet)
-#class EyeDropper(Tool):
-
-#Class fill inherits Tool (Not implemented yet)
-#class Fill(Tool):
+#Class eyedropper, doesn't have brush size so doesn't need to inherit tool
+class EyeDropper(Tool):
+  def use(self, square):
+    return square.get_color()
