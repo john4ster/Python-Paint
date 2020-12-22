@@ -5,7 +5,9 @@ Python Paint is a simple drawing application that allows the user to draw on a g
 
 # What I Learned
 * How to allow the user to change a grid's look using pygame
-* How to make buttons in pygame
+* How to use images in pygame
+* How to make "buttons" in pygame
+* How to save a pygame surface as an image
 
 # Technologies Used
 * Python
