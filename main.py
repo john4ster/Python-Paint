@@ -1,6 +1,8 @@
 import pygame
 import sys
 import tools
+from tkinter import Tk
+from tkinter.filedialog import asksaveasfilename
 
 #Setup the pygame window
 pygame.init()
@@ -29,6 +31,11 @@ DARK_GRAY = (169, 169, 169)
 ORANGE = (255, 165, 0)
 YELLOW = (255, 255, 0)
 MAGENTA = (255, 0, 255)
+BROWN = (139, 69, 19)
+TAN = (245, 222, 179)
+PINK = (255, 105, 180)
+DEEP_PINK = (255, 20, 147)
+MAROON = (128, 0, 0)
 
 
 #Create the grid squares
@@ -55,16 +62,13 @@ class GridSquare:
   def update_neighbors(self, grid, brush_size):
     self.neighbors = []
     #If statements like these are so it doesn't draw on the other side of the grid when the user draws on the edge
-    if self.row < len(grid) and grid[self.row + (brush_size - 1)][self.col].color == WHITE:
+    if self.row < len(grid):
       self.neighbors.append(grid[self.row + (brush_size - 1)][self.col])
-
-    if self.row > 0 and grid[self.row - (brush_size - 1)][self.col].color == WHITE:
+    if self.row > 0:
       self.neighbors.append(grid[self.row - (brush_size - 1)][self.col])
-
-    if self.col > 0 and grid[self.row][self.col - (brush_size - 1)].color == WHITE:
+    if self.col > 0:
       self.neighbors.append(grid[self.row][self.col - (brush_size - 1)])
-
-    if self.col < len(grid) and grid[self.row][self.col + (brush_size - 1)].color == WHITE:
+    if self.col < len(grid):
       self.neighbors.append(grid[self.row][self.col + (brush_size - 1)])
 
     #Fill in the gaps for larger brush sizes
@@ -164,13 +168,25 @@ def main():
 
   still_drawing = True
 
+  #Booleans for what tool is selected, starts with brush
+  brush_selected = True
+  eraser_selected = False
+  eye_dropper_selected = False
+
+  #Booleans for what brush size is selected, starts with 1
+  size_1_selected = True
+  size_2_selected = False
+  size_3_selected = False
+  size_4_selected = False
+
   while still_drawing:
     #Draw the grid
     draw_squares(screen, grid, rows, grid_width)
     #Make the tool buttons
     brush_button = image_button('images/brush.png',(window_width - 80, 50), screen)
     eraser_button = image_button('images/eraser.png', (window_width - 80, 110), screen)
-    eye_dropper_button = image_button('images/eyeDropper.png', (window_width - 80, 160), screen)
+    eye_dropper_button = image_button('images/eyeDropper.png', (window_width - 80, 170), screen)
+
     for event in pygame.event.get():
       if event.type == pygame.QUIT:
         pygame.quit()
@@ -196,23 +212,48 @@ def main():
           #Tool Buttons
           if brush_button[1].collidepoint(pos): #PaintBrush
             current_tool = tools.PaintBrush(brush_size, current_color)
+            brush_selected = True
+            eraser_selected = False
+            eye_dropper_selected = False
           if eraser_button[1].collidepoint(pos): #Eraser
             current_tool = tools.Eraser(brush_size)
+            brush_selected = False
+            eraser_selected = True
+            eye_dropper_selected = False
           if eye_dropper_button[1].collidepoint(pos): #Eye Dropper
             current_tool = tools.EyeDropper(brush_size)
+            brush_selected = False
+            eraser_selected = False
+            eye_dropper_selected = True
           #Brush Size Buttons
           if size_1_rect.collidepoint(pos):
             brush_size = 1
             current_tool.change_brush_size(brush_size)
+            size_1_selected = True
+            size_2_selected = False
+            size_3_selected = False
+            size_4_selected = False
           if size_2_rect.collidepoint(pos):
             brush_size = 2
             current_tool.change_brush_size(brush_size)
+            size_1_selected = False
+            size_2_selected = True
+            size_3_selected = False
+            size_4_selected = False
           if size_3_rect.collidepoint(pos):
             brush_size = 3
             current_tool.change_brush_size(brush_size)
+            size_1_selected = False
+            size_2_selected = False
+            size_3_selected = True
+            size_4_selected = False
           if size_4_rect.collidepoint(pos):
             brush_size = 4
             current_tool.change_brush_size(brush_size)
+            size_1_selected = False
+            size_2_selected = False
+            size_3_selected = False
+            size_4_selected = True
 
           #Change the brush color upon clicking the color buttons
           if yellow_button.collidepoint(pos):
@@ -252,10 +293,38 @@ def main():
             current_color = CYAN
             if type(current_tool) is tools.PaintBrush:
               current_tool.change_brush_color(CYAN)
-          if blue_button.collidepoint(pos):
-            current_color = BLUE
+          if brown_button.collidepoint(pos):
+            current_color = BROWN
             if type(current_tool) is tools.PaintBrush:
-              current_tool.change_brush_color(BLUE)
+              current_tool.change_brush_color(BROWN)
+          if tan_button.collidepoint(pos):
+            current_color = TAN
+            if type(current_tool) is tools.PaintBrush:
+              current_tool.change_brush_color(TAN)
+          if maroon_button.collidepoint(pos):
+            current_color = MAROON
+            if type(current_tool) is tools.PaintBrush:
+              current_tool.change_brush_color(MAROON)
+          if pink_button.collidepoint(pos):
+            current_color = PINK
+            if type(current_tool) is tools.PaintBrush:
+              current_tool.change_brush_color(PINK)
+          if deep_pink_button.collidepoint(pos):
+            current_color = DEEP_PINK
+            if type(current_tool) is tools.PaintBrush:
+              current_tool.change_brush_color(DEEP_PINK)
+
+
+          #If they click on the save button
+          if save_button.collidepoint(pos):
+            #Ask which directory to save the image to using tkinter
+            root = Tk() #Use tkinter to get the directory
+            root.withdraw() #Makes it so the tkinter window doesn't pop up
+            fileName = asksaveasfilename(title = 'Save Image',defaultextension=".png",filetypes = (("PNG file","*.png"),('all files','*.*'))) #Get image name
+            root.destroy() #Delete the tkinter window after saving
+            if fileName != "": #Make sure fileName isn't blank
+              pygame.image.save(screen, fileName)
+
           
 
 
@@ -263,16 +332,40 @@ def main():
     screen.blit(tool_menu_background, (window_width - 200,0))
     tool_menu_background.fill(GRAY)
 
-    #Display the tool buttons
+    #Display the tool button indicators (indicate which tool is selected by changing the rect color)
+    brush_indicator = pygame.draw.rect(screen, DARK_GRAY, (window_width - 130, 50, 50, 50))
+    if brush_selected:
+      brush_indicator = pygame.draw.rect(screen, LIME, ((window_width - 130, 50, 50, 50)))
+
+    eraser_indicator = pygame.draw.rect(screen, DARK_GRAY, (window_width - 130, 110, 50, 50))
+    if eraser_selected:
+      eraser_indicator = pygame.draw.rect(screen, LIME, (window_width - 130, 110, 50, 50))
+
+    eye_dropper_indicator = pygame.draw.rect(screen, DARK_GRAY, (window_width - 130, 170, 50, 50))
+    if eye_dropper_selected:
+      eye_dropper_indicator = pygame.draw.rect(screen, LIME, (window_width - 130, 170, 50, 50))
+
+    #Display the tool buttons (image rects)
     screen.blit(brush_button[0], brush_button[1])
     screen.blit(eraser_button[0], eraser_button[1])
     screen.blit(eye_dropper_button[0], eye_dropper_button[1])
 
     #Display the brush size buttons
     size_1_rect = pygame.draw.rect(screen,DARK_GRAY,(window_width - 180,270,30,30))
+    if size_1_selected:
+      size_1_rect = pygame.draw.rect(screen,LIME,(window_width - 180,270,30,30))
+
     size_2_rect = pygame.draw.rect(screen,DARK_GRAY,(window_width - 140,270,30,30))
+    if size_2_selected:
+      size_2_rect = pygame.draw.rect(screen,LIME,(window_width - 140,270,30,30))
+
     size_3_rect = pygame.draw.rect(screen,DARK_GRAY,(window_width - 100,270,30,30))
+    if size_3_selected:
+      size_3_rect = pygame.draw.rect(screen,LIME,(window_width - 100,270,30,30))
+
     size_4_rect = pygame.draw.rect(screen,DARK_GRAY,(window_width - 60,270,30,30))
+    if size_4_selected:
+      size_4_rect = pygame.draw.rect(screen,LIME,(window_width - 60,270,30,30))
     #Display the text on the buttons
     display_text("1", BLACK, (window_width - 165,275))
     display_text("2", BLACK, (window_width - 125,275))
@@ -290,9 +383,19 @@ def main():
     black_button = pygame.draw.rect(screen, BLACK, (window_width - 115, 400, 30, 30))
     cyan_button = pygame.draw.rect(screen, CYAN, (window_width - 85, 400, 30, 30))
     blue_button = pygame.draw.rect(screen, BLUE, (window_width - 55, 400, 30, 30))
+    brown_button = pygame.draw.rect(screen, BROWN, (window_width - 175, 430, 30, 30))
+    tan_button = pygame.draw.rect(screen, TAN, (window_width - 145, 430, 30, 30))
+    maroon_button = pygame.draw.rect(screen, MAROON, (window_width - 115, 430, 30, 30))
+    pink_button = pygame.draw.rect(screen, PINK, (window_width - 85, 430, 30, 30))
+    deep_pink_button = pygame.draw.rect(screen, DEEP_PINK, (window_width - 55, 430, 30, 30))
+
 
     #Display the current color
     current_color_rect = pygame.draw.rect(screen, current_color, (window_width - 130, 525, 50, 50))
+
+    #Display the save button
+    save_button = pygame.draw.rect(screen, DARK_GRAY, (window_width - 150, 650, 100, 40))
+    display_text("Save", BLACK, (window_width - 135, 660))
 
     #Displays the tool menu titles
     display_text("Tools", BLACK, (window_width - 140, 5))
