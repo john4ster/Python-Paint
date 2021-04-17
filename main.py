@@ -62,35 +62,44 @@ class GridSquare:
   def update_neighbors(self, grid, brush_size):
     self.neighbors = []
     #If statements like these are so it doesn't draw on the other side of the grid when the user draws on the edge
-    if self.row < len(grid):
+    if self.row < len(grid): #Left of the point clicked
       self.neighbors.append(grid[self.row + (brush_size - 1)][self.col])
-    if self.row > 0:
+    if self.row > 0: #Right of the point clicked
       self.neighbors.append(grid[self.row - (brush_size - 1)][self.col])
-    if self.col > 0:
+    if self.col > 0: #Above the point clicked
       self.neighbors.append(grid[self.row][self.col - (brush_size - 1)])
-    if self.col < len(grid):
-      self.neighbors.append(grid[self.row][self.col + (brush_size - 1)])
+    if self.col < len(grid): #Below the point clicked
+     self.neighbors.append(grid[self.row][self.col + (brush_size - 1)])
+    
 
     #Fill in the gaps for larger brush sizes
     if brush_size >= 3:
-      if self.row < len(grid):
+      if self.row < len(grid): #Left of the point clicked
         self.neighbors.append(grid[self.row + (brush_size - 2)][self.col])
-      if self.row > 0:
+        self.neighbors.append(grid[self.row + (brush_size - 2)][self.col + (brush_size - 2)])
+      if self.row > 0: #Right of the point clicked
         self.neighbors.append(grid[self.row - (brush_size - 2)][self.col])
-      if self.col > 0:
+        self.neighbors.append(grid[self.row - (brush_size - 2)][self.col + (brush_size - 2)])
+      if self.col > 0: #Above the point clicked
         self.neighbors.append(grid[self.row][self.col - (brush_size - 2)])
-      if self.row < len(grid):
+        self.neighbors.append(grid[self.row - (brush_size - 2)][self.col - (brush_size - 2)])
+      if self.row < len(grid): #Below the point clicked
         self.neighbors.append(grid[self.row][self.col + (brush_size - 2)])
+        self.neighbors.append(grid[self.row + (brush_size - 2)][self.col - (brush_size - 2)])
 
     if brush_size == 4:
-      if self.row < len(grid):
+      if self.row < len(grid): #Left of the point clicked
         self.neighbors.append(grid[self.row + (brush_size - 3)][self.col])
-      if self.row > 0:
+        self.neighbors.append(grid[self.row + (brush_size - 3)][self.col + (brush_size - 3)])
+      if self.row > 0: #Right of the point clicked
         self.neighbors.append(grid[self.row - (brush_size - 3)][self.col])
-      if self.col > 0:
+        self.neighbors.append(grid[self.row - (brush_size - 3)][self.col + (brush_size - 3)])
+      if self.col > 0: #Above the point clicked
         self.neighbors.append(grid[self.row][self.col - (brush_size - 3)])
-      if self.col < len(grid):
+        self.neighbors.append(grid[self.row - (brush_size - 3)][self.col - (brush_size - 3)])
+      if self.col < len(grid): #Below the point clicked
         self.neighbors.append(grid[self.row][self.col + (brush_size - 3)])
+        self.neighbors.append(grid[self.row + (brush_size - 3)][self.col - (brush_size - 3)])
 
 
     return self.neighbors
